@@ -1,0 +1,23 @@
+# Local project media and renders
+*.mp4
+*.mov
+*.mkv
+*.wav
+*.mp3
+*.flac
+*.aiff
+renders/
+cache/
+temp/
+tmp/
+output/
+制作/
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+dist/

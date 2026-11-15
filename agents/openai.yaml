@@ -1,0 +1,8 @@
+interface:
+  display_name: "AI MV Director"
+  short_description: "Plan, storyboard, and produce original music videos"
+  brand_color: "#6D5CE7"
+  default_prompt: "Use $ai-mv-director to analyze this song and guide a distinctive music-video project through the four approval-gated phases."
+
+policy:
+  allow_implicit_invocation: true

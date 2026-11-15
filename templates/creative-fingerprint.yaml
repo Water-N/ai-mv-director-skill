@@ -1,0 +1,33 @@
+schema_version: "1.0"
+project:
+  song_title: ""
+  artist: ""
+  release_year: ""
+  project_status: "in_progress"
+  completed_at: ""
+  final_video_path: ""
+creative:
+  one_sentence_story: ""
+  core_emotion: ""
+  narrative_mechanism: ""
+  protagonist_pov: ""
+  recurring_object: ""
+  story_structure: ""
+  bridge_function: ""
+  opening_hook: ""
+  ending_device: ""
+visual:
+  medium: ""
+  locations: []
+  palette: []
+  motifs: []
+  camera_language: ""
+  editing_language: ""
+  subtitle_language: ""
+  hud_used: false
+archive:
+  compared_projects: []
+  difference_scores: {}
+  reused_technical_assets: []
+  intentionally_repeated_elements: []
+  notes: ""

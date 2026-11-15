@@ -1,0 +1,64 @@
+name: Publish v1.0.0 Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/publish-release.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: >-
+      github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'release: publish v1.0.0')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish-v1.0.0
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate and package complete Skill
+        run: python scripts/package_release.py . --output-dir dist
+      - name: Check commit identity privacy
+        id: identity
+        env:
+          REBUILD_HISTORY: "false"
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git log --format='%ae%n%ce' | python -c 'import sys; emails = [s.strip() for s in sys.stdin if s.strip()]; sys.exit(0 if emails and all(s.endswith("@users.noreply.github.com") for s in emails) else 1)'; then
+            target="$GITHUB_SHA"
+          elif [ "$REBUILD_HISTORY" = "true" ]; then
+            target=$(git commit-tree 'HEAD^{tree}' -m 'release: AI MV Director Skill v1.0.0')
+            git push --force-with-lease="refs/heads/main:$GITHUB_SHA" origin "$target:refs/heads/main"
+          else
+            echo 'Commit identity privacy requires an authorized history rebuild. Release stopped.'
+            exit 1
+          fi
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TARGET: ${{ steps.identity.outputs.target }}
+        run: |
+          set -euo pipefail
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            echo 'Release already exists; refusing to overwrite it.'
+            exit 1
+          fi
+          gh release create v1.0.0 dist/ai-mv-director-skill-v1.0.0.zip dist/SHA256SUMS.txt \
+            --title "v1.0.0 — AI MV Director Skill" \
+            --notes-file docs/RELEASE_NOTES.md \
+            --target "$RELEASE_TARGET" \
+            --latest
